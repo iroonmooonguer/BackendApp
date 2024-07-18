@@ -12,8 +12,10 @@ class PostController extends Controller
      */
     public function index()
     {
-        //
-    }
+        $posts = Post::with('category','user')->orderBy('created_at', 'desc')->get();
+      
+        return new PostCollection($posts);
+}
 
     /**
      * Show the form for creating a new resource.
