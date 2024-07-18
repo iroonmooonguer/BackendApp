@@ -30,7 +30,33 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // Validar los datos de la solicitud
+        $validatedData = $request->validate([
+            'title' => 'required|string|max:255',
+            'message' => 'required|string',
+            'category_id' => 'required|exists:categories,id',
+        ]);
+    
+        // Verificar que el usuario esté autenticado
+        $userId = auth()->id();
+        if (!$userId) {
+            return response()->json(['error' => 'Usuario no autenticado'], 401);
+        }
+    
+        // Generar el slug automáticamente basado en el título
+        $validatedData['slug'] = Str::slug($request->title);
+    
+        // Añadir el user_id del usuario autenticado
+        $validatedData['user_id'] = $userId;
+    
+        // Crear el nuevo post
+        $post = Post::create($validatedData);
+    
+        // Cargar las relaciones necesarias
+        $post->load('category');
+    
+        // Responder con el recurso recién creado
+        return new PostResource($post);
     }
 
     /**
