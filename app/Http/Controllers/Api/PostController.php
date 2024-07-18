@@ -82,10 +82,25 @@ class PostController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Post $post)
     {
-        //
+        // Validar los datos de la solicitud
+        $validatedData = $request->validate([
+            'title' => 'sometimes|required|string|max:255',
+            'message' => 'sometimes|required|string',
+            'category_id' => 'sometimes|required|exists:categories,id',
+        ]);
+
+        // Actualizar el post con los datos validados
+        $post->update($validatedData);
+
+        // Cargar las relaciones necesarias
+        $post->load('category');
+
+        // Responder con el recurso actualizado
+        return new PostResource($post);
     }
+
 
     /**
      * Remove the specified resource from storage.
