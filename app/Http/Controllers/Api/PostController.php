@@ -111,4 +111,14 @@ class PostController extends Controller
 
        return response()->json(null, 204);
     }
+
+    public function myPosts()
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => 'Usuario no autenticado'], 401);
+        }
+        $posts = Post::with('category')->where('user_id', $user->id)->get();
+        return PostCollection::make($posts);
+    }
 }
